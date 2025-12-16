@@ -101,8 +101,7 @@ fun PublishingExtension.applyToSub(subProject: Project) {
                 create<BasicAuthentication>("basic")
             }
         }
-        maven("http://repo.aeoliancloud.com/repository/releases") {
-            isAllowInsecureProtocol = true
+        maven("https://repo.aeoliancloud.com/repository/releases") {
             credentials {
                 username = project.findProperty("aeolianUsername").toString()
                 password = project.findProperty("aeolianPassword").toString()

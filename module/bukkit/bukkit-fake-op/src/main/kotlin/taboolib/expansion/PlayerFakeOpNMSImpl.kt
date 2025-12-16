@@ -69,8 +69,14 @@ class PlayerFakeOpNMSImpl : PlayerFakeOpNMS() {
                 .method(ElementMatchers.named("isOp"))
                 .intercept(FixedValue.value(true))
                 .make()
-            // Load the new class by injecting it into the given ClassLoader by reflective access
-            playerFakeOpClass = dynamicType.load(javaClass.classLoader, ClassLoadingStrategy.Default.INJECTION).loaded
+            // Load the new class with fallback strategy for Java 17+
+            // Try INJECTION first (works on Java 8-16), fallback to WRAPPER (works on Java 17+)
+            playerFakeOpClass = try {
+                dynamicType.load(javaClass.classLoader, ClassLoadingStrategy.Default.INJECTION).loaded
+            } catch (e: UnsupportedOperationException) {
+                // Fallback to WRAPPER strategy for Java 17+ with strict module system
+                dynamicType.load(javaClass.classLoader, ClassLoadingStrategy.Default.WRAPPER).loaded
+            }
             playerFakeOpConstructor = playerFakeOpClass.getConstructor(CraftServer::class.java, entityPlayerClass, CraftPlayer::class.java)
         }
 
